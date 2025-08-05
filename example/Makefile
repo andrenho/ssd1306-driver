@@ -1,4 +1,4 @@
-CPPFLAGS = -Wall -Wextra
+CPPFLAGS = -Wall -Wextra -g -O0
 
 OBJ = example.o ../ssd1306.o
 
