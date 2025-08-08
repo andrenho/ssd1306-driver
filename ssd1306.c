@@ -10,7 +10,6 @@
 
 static I2CFunctions f;
 static size_t       lines;
-static uint8_t*     pixels;
 
 void ssd1306_init(I2CFunctions i2c_functions, size_t lines_)
 {
@@ -35,9 +34,8 @@ void ssd1306_init(I2CFunctions i2c_functions, size_t lines_)
     f.send_bytes(f.data, L{ CMD, 0xdb, 0x40 }, 3);  // VCOMH deselect level
     f.send_bytes(f.data, L{ CMD, 0xa4 }, 2);        // entire display on
     f.send_bytes(f.data, L{ CMD, 0xa6 }, 2);        // normal/inverse display
+    ssd1306_clear_screen();
     f.send_bytes(f.data, L{ CMD, 0xaf }, 2);        // turn display on
-
-    pixels = calloc(lines, 128 / 8);
 }
 
 
@@ -47,30 +45,47 @@ void ssd1306_close()
         f.finalize(f.data);
 }
 
-uint8_t* ssd1306_pixels()
+void ssd1306_clear_screen()
 {
-    return pixels;
+    f.send_bytes(f.data, L{ CMD, 0x21, 0x00, 127 }, 4);      // column address: 0~127
+    f.send_bytes(f.data, L{ CMD, 0x22, 0x00, lines / 8 - 1 }, 4);  // page address: 0~3
+
+    // draw
+    uint8_t data[17] = {0};
+    data[0] = DCNT;
+    size_t n_bytes = (128 / 8) * lines;
+    for (size_t i = 0; i < n_bytes / 16; ++i)
+        f.send_bytes(f.data, data, 17);
 }
 
-void ssd1306_render()
+SSD_Buffer* ssd1306_create_buffer()
 {
-    f.send_bytes(f.data, L{ CMD, 0x21, 0x00, 127 }, 4);    // column address: 0~127
-    f.send_bytes(f.data, L{ CMD, 0x22, 0x00, 3 }, 4);      // page address: 0~3
+    SSD_Buffer* bf = calloc(1, sizeof(SSD_Buffer));
+    bf->w = 128;
+    bf->h = lines;
+    bf->pixels = calloc(128 / 8, lines);
+    return bf;
+}
 
+void ssd1306_render_buffer(SSD_Buffer const* bf)
+{
+    f.send_bytes(f.data, L{ CMD, 0x21, 0x00, bf->w - 1 }, 4);      // column address: 0~127
+    f.send_bytes(f.data, L{ CMD, 0x22, 0x00, bf->h / 8 - 1 }, 4);  // page address: 0~3
+
+    // draw
     uint8_t data[17];
-
-    // first line
-    data[0] = DATA;
-    memcpy(&data[1], pixels, 16);
-    f.send_bytes(f.data, pixels, 17);
-
-    // remaining lines
     data[0] = DCNT;
-    f.send_bytes(f.data, pixels, 17);
-    for (size_t i = 1; i < lines; ++i) {
-        memcpy(&data[1], &pixels[i * 16], 16);
+    size_t n_bytes = (bf->w / 8) * bf->h;
+    for (size_t i = 0; i < n_bytes / 16; ++i) {
+        memcpy(&data[1], &bf->pixels[i * 16], 16);
         f.send_bytes(f.data, data, 17);
     }
+}
+
+void buffer_free(SSD_Buffer* buffer)
+{
+    free(buffer->pixels);
+    free(buffer);
 }
 
 #undef L

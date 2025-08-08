@@ -11,10 +11,18 @@ typedef struct {
     void (*send_bytes)(void* data, uint8_t const* bytes, size_t sz);
 } I2CFunctions;
 
-void     ssd1306_init(I2CFunctions i2c_functions, size_t lines);
-void     ssd1306_close();
+typedef struct {
+    uint16_t w;
+    uint8_t  h;
+    uint8_t* pixels;
+} SSD_Buffer;
 
-uint8_t* ssd1306_pixels();
-void     ssd1306_render();
+void        ssd1306_init(I2CFunctions i2c_functions, size_t lines);
+void        ssd1306_close();
+void        ssd1306_clear_screen();
+SSD_Buffer* ssd1306_create_buffer();
+void        ssd1306_render_buffer(SSD_Buffer const* buffer);
+
+void        buffer_free(SSD_Buffer* buffer);
 
 #endif

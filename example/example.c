@@ -29,9 +29,11 @@ static void i2c_send_bytes(void* data, uint8_t const* bytes, size_t sz)
     (void) data;
     i2cWriteDevice(H, (char *) bytes, sz);
 
+    /*
     for (size_t i = 0; i < sz; ++i)
         printf("%02X ", bytes[i]);
     printf("\n");
+    */
 }
 
 int main()
@@ -43,11 +45,13 @@ int main()
         .finalize = i2c_finalize,
     }, 32);
 
-    for (size_t i = 0; i < 512; ++i)
-        ssd1306_pixels()[i] = 0x88;
-    
-    //ssd1306_pixels()[32] = 0xff;
-    ssd1306_render();
+    SSD_Buffer* bf = ssd1306_create_buffer();
 
+    for (size_t i = 0; i < 512; ++i)
+        bf->pixels[i] = 0xff;
+    
+    ssd1306_render_buffer(bf);
+
+    buffer_free(bf);
     ssd1306_close();
 }
