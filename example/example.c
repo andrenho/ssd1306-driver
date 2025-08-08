@@ -24,14 +24,14 @@ static void i2c_finalize(void* data)
     gpioTerminate();
 }
 
-static void i2c_send_byte(void* data, uint8_t reg, uint8_t byte)
+static void i2c_send_bytes(void* data, uint8_t const* bytes, size_t sz)
 {
-    i2cWriteByteData(H, reg, byte);
-}
+    (void) data;
+    i2cWriteDevice(H, (char *) bytes, sz);
 
-static void i2c_send_bytes(void* data, uint8_t reg, uint8_t const* bytes, size_t sz)
-{
-    i2cWriteBlockData(H, reg, bytes, sz);
+    for (size_t i = 0; i < sz; ++i)
+        printf("%02X ", bytes[i]);
+    printf("\n");
 }
 
 int main()
@@ -39,10 +39,16 @@ int main()
     ssd1306_init((I2CFunctions) {
         .data = (void *) 1,
         .init = i2c_init,
-        .send_byte = i2c_send_byte,
         .send_bytes = i2c_send_bytes,
         .finalize = i2c_finalize,
-    });
+    }, 32);
+
+    for (size_t i = 0; i < 512; ++i)
+        ssd1306_pixels()[i] = 0xff;
+    
+    //ssd1306_pixels()[31] = 0xff;
+    //ssd1306_pixels()[32] = 0xff;
+    ssd1306_render();
 
     ssd1306_close();
 }
