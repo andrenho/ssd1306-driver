@@ -44,9 +44,8 @@ int main()
     }, 32);
 
     for (size_t i = 0; i < 512; ++i)
-        ssd1306_pixels()[i] = 0xff;
+        ssd1306_pixels()[i] = 0x88;
     
-    //ssd1306_pixels()[31] = 0xff;
     //ssd1306_pixels()[32] = 0xff;
     ssd1306_render();
 
