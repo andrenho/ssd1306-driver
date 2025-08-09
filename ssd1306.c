@@ -93,8 +93,11 @@ void buffer_clear(SSD_Buffer* bf)
     memset(bf->pixels, 0, (bf->w / 8) * bf->h);
 }
 
-void buffer_set_pixel(SSD_Buffer* bf, int x, int y, bool color)
+void buffer_draw_pixel(SSD_Buffer* bf, int x, int y, bool color)
 {
+    if (x < 0 || x >= bf->w || y < 0 || y >= bf->h)
+        return;
+
     uint16_t n_pages = bf->h / 8;
     uint16_t byte = (y / 8) + (x * n_pages);
     uint8_t  bit = y % 8;
@@ -103,6 +106,36 @@ void buffer_set_pixel(SSD_Buffer* bf, int x, int y, bool color)
         bf->pixels[byte] = bf->pixels[byte] | (1 << bit);
     else
         bf->pixels[byte] = bf->pixels[byte] & ~(1 << bit);
+}
+
+void buffer_draw_char(SSD_Buffer* bf, Font const* font, int x, int y, char c)
+{
+    uint8_t const* flat = (uint8_t const*) font->chars;
+    uint8_t const* fst_line = &flat[c * font->char_h];
+
+    for (size_t row = 0; row < font->char_h; ++row) {
+        for (size_t col = 0; col < font->char_w; ++col) {
+            bool data = fst_line[row] & (1 << (7 - col));
+            if (data)
+                buffer_draw_pixel(bf, x + col, y + row, true);
+        }
+    }
+}
+
+void buffer_draw_string(SSD_Buffer* bf, Font const* font, int x, int y, const char* str)
+{
+    while (*str) {
+        buffer_draw_char(bf, font, x, y, *str);
+        x += font->char_w;
+        ++str;
+    }
+}
+
+void buffer_fill_rect(SSD_Buffer* bf, uint8_t x, uint8_t y, uint8_t w, uint8_t h, bool color)
+{
+    for (uint8_t xx = x; xx < (x + w); ++xx)
+        for (uint8_t yy = y; yy < (y + h); ++yy)
+            buffer_draw_pixel(bf, xx, yy, color);
 }
 
 #undef L

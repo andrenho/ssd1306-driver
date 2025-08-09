@@ -1,8 +1,9 @@
-#include "../ssd1306.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <pigpio.h>
+
+#include "../ssd1306.h"
+#include "../toshiba_font.h"
 
 static int H;  // handle
 
@@ -47,15 +48,10 @@ int main()
 
     SSD_Buffer* bf = ssd1306_create_buffer();
 
-    /*
-    bf->pixels[1] = 0xff;
-    for (size_t i = 0; i < 512; ++i)
-        bf->pixels[i] = 0xff;
-    */
-    buffer_set_pixel(bf, 0, 0, true);
-    buffer_set_pixel(bf, 5, 5, true);
-    buffer_set_pixel(bf, 10, 10, true);
-    buffer_set_pixel(bf, 127, 31, true);
+    buffer_draw_pixel(bf, 127, 31, true);
+    buffer_draw_string(bf, &toshiba_font, 0, 2, "Hello world!");
+    buffer_draw_string(bf, &toshiba_font, 8, 18, "Hello world!");
+    buffer_fill_rect(bf, 10, 10, 30, 15, false);
     ssd1306_render_buffer(bf);
 
     buffer_free(bf);
