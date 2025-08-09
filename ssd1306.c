@@ -20,9 +20,9 @@ void ssd1306_init(I2CFunctions i2c_functions, size_t lines_)
         f.init(f.data);
 
     f.send_bytes(f.data, L{ CMD, 0xae }, 2);        // set display off
-    f.send_bytes(f.data, L{ CMD, 0xd5, 0x80 }, 1);  // set clock
-    f.send_bytes(f.data, L{ CMD, 0xa8, 0x1f }, 1);  // set multiplex ratio
-    f.send_bytes(f.data, L{ CMD, 0xd3, 0x00 }, 1);  // set display offset
+    f.send_bytes(f.data, L{ CMD, 0xd5, 0x80 }, 3);  // set clock
+    f.send_bytes(f.data, L{ CMD, 0xa8, 0x1f }, 3);  // set multiplex ratio
+    f.send_bytes(f.data, L{ CMD, 0xd3, 0x00 }, 3);  // set display offset
     f.send_bytes(f.data, L{ CMD, 0x40 }, 2);        // set display start line
     f.send_bytes(f.data, L{ CMD, 0x8d, 0x14 }, 3);  // set charge pump
     f.send_bytes(f.data, L{ CMD, 0x20, 0x01 }, 3);  // vertical addressing mode
