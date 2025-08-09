@@ -51,7 +51,7 @@ int main()
     buffer_draw_pixel(bf, 127, 31, true);
     buffer_draw_string(bf, &toshiba_font, 0, 2, "Hello world!");
     buffer_draw_string(bf, &toshiba_font, 8, 18, "Hello world!");
-    buffer_fill_rect(bf, 10, 10, 30, 15, false);
+    // buffer_fill_rect(bf, 10, 10, 30, 15, false);
     ssd1306_render_buffer(bf);
 
     buffer_free(bf);
