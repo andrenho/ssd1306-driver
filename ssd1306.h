@@ -1,6 +1,7 @@
 #ifndef SSD1306_H_
 #define SSD1306_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
 
@@ -23,6 +24,8 @@ void        ssd1306_clear_screen();
 SSD_Buffer* ssd1306_create_buffer();
 void        ssd1306_render_buffer(SSD_Buffer const* buffer);
 
-void        buffer_free(SSD_Buffer* buffer);
+void        buffer_free(SSD_Buffer* bf);
+void        buffer_clear(SSD_Buffer* bf);
+void        buffer_set_pixel(SSD_Buffer* bf, int x, int y, bool color);
 
 #endif

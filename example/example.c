@@ -47,9 +47,15 @@ int main()
 
     SSD_Buffer* bf = ssd1306_create_buffer();
 
+    /*
+    bf->pixels[1] = 0xff;
     for (size_t i = 0; i < 512; ++i)
         bf->pixels[i] = 0xff;
-    
+    */
+    buffer_set_pixel(bf, 0, 0, true);
+    buffer_set_pixel(bf, 5, 5, true);
+    buffer_set_pixel(bf, 10, 10, true);
+    buffer_set_pixel(bf, 127, 31, true);
     ssd1306_render_buffer(bf);
 
     buffer_free(bf);

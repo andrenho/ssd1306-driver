@@ -25,7 +25,7 @@ void ssd1306_init(I2CFunctions i2c_functions, size_t lines_)
     f.send_bytes(f.data, L{ CMD, 0xd3, 0x00 }, 1);  // set display offset
     f.send_bytes(f.data, L{ CMD, 0x40 }, 2);        // set display start line
     f.send_bytes(f.data, L{ CMD, 0x8d, 0x14 }, 3);  // set charge pump
-    f.send_bytes(f.data, L{ CMD, 0x20, 0x00 }, 3);  // horizontal addressing mode
+    f.send_bytes(f.data, L{ CMD, 0x20, 0x01 }, 3);  // vertical addressing mode
     f.send_bytes(f.data, L{ CMD, 0xa1 }, 2);        // segment remap
     f.send_bytes(f.data, L{ CMD, 0xc8 }, 2);        // set COM output scan direction
     f.send_bytes(f.data, L{ CMD, 0xda, 0x02 }, 3);  // set COM pins hardware config
@@ -86,6 +86,23 @@ void buffer_free(SSD_Buffer* buffer)
 {
     free(buffer->pixels);
     free(buffer);
+}
+
+void buffer_clear(SSD_Buffer* bf)
+{
+    memset(bf->pixels, 0, (bf->w / 8) * bf->h);
+}
+
+void buffer_set_pixel(SSD_Buffer* bf, int x, int y, bool color)
+{
+    uint16_t n_pages = bf->h / 8;
+    uint16_t byte = (y / 8) + (x * n_pages);
+    uint8_t  bit = y % 8;
+
+    if (color)
+        bf->pixels[byte] = bf->pixels[byte] | (1 << bit);
+    else
+        bf->pixels[byte] = bf->pixels[byte] & ~(1 << bit);
 }
 
 #undef L
